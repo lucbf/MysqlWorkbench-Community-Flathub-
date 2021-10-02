@@ -2,7 +2,7 @@ Building Mysql Workbench Community from sources. I'm sorry I couldn't get past w
 
 /usr/bin/ld: /run/build/mysql-workbench/library/parsers/libparsers.so.8.0.26: undefined reference to `antlr4::ANTLRInputStream::ANTLRInputStream(std::basic_string_view<char, std::char_traits >)'
 
-At Workbench's 90% build process. I'm posting this in case there's someone who wishes to pick up the job.
+At Workbench's 90% build process. I'm posting this in case there's someone who wishes to pick up the job. If you do so, ask for permission at https://bugs.mysql.com/bug.php?id=105103
 
 # Flathub
 
