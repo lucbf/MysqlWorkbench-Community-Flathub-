@@ -1,0 +1,243 @@
+app-id: com.mysql.dev.MySQLWorkbench
+
+runtime: org.gnome.Platform
+runtime-version: '3.38'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.openjdk17
+
+finish-args:
+  - --env=PATH=/app/jre/bin:/usr/bin
+
+
+command: mysql-workbench
+modules:
+
+  - name: openjdk17
+    buildsystem: simple
+    build-commands:
+      - /usr/lib/sdk/openjdk17/installjdk.sh
+
+  - name: libtirpc
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://downloads.sourceforge.net/libtirpc/libtirpc-1.3.2.tar.bz2
+        sha256: e24eb88b8ce7db3b7ca6eb80115dd1284abc5ec32a8deccfed2224fc2532b9fd
+
+  - name: rpcsvc-proto
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://github.com/thkukuk/rpcsvc-proto/releases/download/v1.4.2/rpcsvc-proto-1.4.2.tar.xz
+        sha1: 1730b5812393ea8bee3a1530a41759c181eb8182
+
+  - name: boost
+    buildsystem: simple
+    build-commands:
+      - ./bootstrap.sh --prefix=/app --with-python=python3 --with-libraries=system
+      - ./b2 install variant=release debug-symbols=off threading=multi link=shared -j $FLATPAK_BUILDER_N_JOBS
+    sources:
+      - type: archive
+        url: https://boostorg.jfrog.io/artifactory/main/release/1.73.0/source/boost_1_73_0.tar.bz2
+        sha256: 4eb3b8d442b426dc35346235c8733b5ae35ba431690e38c6a8263dce9fcbb402
+
+  - name: swig
+    buildsystem: autotools
+    no-autogen: true
+    sources:
+      - type: archive
+        url: https://downloads.sourceforge.net/swig/swig-4.0.2.tar.gz
+        sha1: ced6676c625c49d78d73cbd3b9aaab8c30b9b4ee
+
+  - name: antlr4-jar
+    buildsystem: simple
+    build-commands:
+      - install -D antlr-4.9.1-complete.jar /app/lib/antlr-4.9.1-complete.jar
+    sources:
+      - type: file
+        url: https://www.antlr.org/download/antlr-4.9.1-complete.jar
+        sha256: 1f645aea79b98e6ff7ec8f6bf7ea82b58cfc60a194cda2a3b1e753589d41f98d
+
+  - name: utfcpp
+    buildsystem: cmake
+    config-opts:
+      - -DCMAKE_INSTALL_PREFIX=/app
+      - -DCMAKE_BUILD_TYPE=MINSIZEREL
+    sources:
+      - type: git
+        url: https://github.com/nemtrif/utfcpp.git
+        tag: v3.2.1
+
+  - name: antlr4-c++
+    buildsystem: simple
+    build-commands:
+      - cmake runtime/Cpp -DCMAKE_BUILD_TYPE=MINSIZEREL -DWITH_DEMO=False -DCMAKE_INSTALL_PREFIX=/app
+      - make -j $FLATPAK_BUILDER_N_JOBS
+      - make install
+    sources:
+      - type: git
+        url: https://github.com/antlr/antlr4.git
+        tag: '4.9.1'
+      - type: patch
+        path: antlr4-offline-utfcpp.patch
+      - type: patch
+        path: antlr4-no-text-file.patch
+
+  - name: mm-common
+    buildsystem: meson
+    sources:
+      - type: archive
+        url: https://download.gnome.org/sources/mm-common/1.0/mm-common-1.0.3.tar.xz
+        sha256: e81596625899aacf1d0bf27ccc2fcc7f373405ec48735ca1c7273c0fbcdc1ef5
+
+  - name: sigc++2
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://download.gnome.org/sources/libsigc++/2.9/libsigc%2B%2B-2.9.3.tar.xz
+        sha256: 0bf9b301ad6198c550986c51150a646df198e8d1d235270c16486b0dda30097f
+  
+  - name: glibmm2
+    buildsystem: meson
+    sources:
+      - type: archive
+        url: https://download.gnome.org/sources/glibmm/2.66/glibmm-2.66.1.tar.xz
+        sha256: 69bd6b5327716ca2f511ab580a969fd7bf0cd2c24ce15e1d0e530592d3ff209c
+
+  - name: cairomm
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://download.gnome.org/sources/cairomm/1.12/cairomm-1.12.0.tar.xz
+        sha256: a54ada8394a86182525c0762e6f50db6b9212a2109280d13ec6a0b29bfd1afe6
+
+  - name: pangomm2
+    buildsystem: meson
+    sources:
+      - type: archive
+        url: https://download.gnome.org/sources/pangomm/2.46/pangomm-2.46.1.tar.xz
+        sha256: c885013fe61a4c5117fda395770d507563411c63e49f4a3aced4c9efe34d9975
+
+  - name: atkmm2
+    buildsystem: meson
+    sources:
+      - type: archive
+        url: https://download.gnome.org/sources/atkmm/2.28/atkmm-2.28.2.tar.xz
+        sha256: a0bb49765ceccc293ab2c6735ba100431807d384ffa14c2ebd30e07993fd2fa4
+
+  - name: gtkmm3
+    buildsystem: meson
+    sources:
+      - type: archive
+        url: https://download.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.5.tar.xz
+        sha256: 856333de86689f6a81c123f2db15d85db9addc438bc3574c36f15736aeae22e6
+
+  - name: libmysql
+    buildsystem: simple
+    build-commands:
+      - cmake -DCMAKE_INSTALL_PREFIX=/app -DCMAKE_BUILD_TYPE=MINSIZEREL -DWITH_UNIT_TESTS=OFF -DFORCE_INSOURCE_BUILD=1
+      - make -j $FLATPAK_BUILDER_N_JOBS -C libmysql install
+      - make -j $FLATPAK_BUILDER_N_JOBS -C include install
+    sources:
+      - type: archive
+        url: https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.26.tar.gz
+        sha256: dbddcdc772f806c711a3731363a50f3d359eaac9c5d1480084728a1c2ce5da4d
+
+  - name: mysql-cpp-connector
+    buildsystem: cmake
+    config-opts:
+      - -DCMAKE_INSTALL_PREFIX=/app
+      - -DCMAKE_BUILD_TYPE=RELEASE
+      - -DWITH_JDBC=true
+      - -DMYSQL_INCLUDE_DIR=/app/include
+      - -DMYSQL_LIB_DIR=/app/lib
+    post-install:
+      - mv /app/lib64/* /app/lib
+      - rm -r /app/lib64
+    sources:
+      - type: archive
+        url: https://dev.mysql.com/get/Downloads/Connector-C++/mysql-connector-c++-8.0.26-src.tar.gz
+        md5: e89361632bf43ec09c80b9f1b96df672
+
+  - name: sqlite3
+    buildsystem: autotools
+    no-autogen: true
+    sources:
+      - type: archive
+        url: https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz
+        sha1: a4bcf9e951bfb9745214241ba08476299fc2dc1e
+
+  - name: vsqlite
+    buildsystem: autotools
+    no-autogen: true
+    sources:
+      - type: archive
+        url: http://evilissimo.fedorapeople.org/releases/vsqlite--/0.3.13/vsqlite++-0.3.13.tar.gz
+        sha1: 2efc6c6fedb7d02159151a71aaefb5f138ff5962
+
+  - name: proj8
+    buildsystem: autotools
+    no-autogen: true
+    sources:
+      - type: archive
+        url: https://download.osgeo.org/proj/proj-8.1.1.tar.gz
+        md5: f017fd7d35311b0d65b2cf0503844690
+
+  - name: gdal3
+    buildsystem: autotools
+    no-autogen: true
+    config-opts:
+      - includedir=/app/include/gdal
+    sources:
+      - type: archive
+        url: https://github.com/OSGeo/gdal/releases/download/v3.3.2/gdal-3.3.2.tar.gz
+        md5: fd82c580ec9e16a0a46cd176243a8a56
+
+  - name: libssh
+    buildsystem: cmake
+    builddir: true
+    config-opts:
+      - -DCMAKE_INSTALL_PREFIX=/app
+      - -DCMAKE_BUILD_TYPE=MINSIZEREL
+    sources:
+      - type: archive
+        url: https://www.libssh.org/files/0.9/libssh-0.9.6.tar.xz
+        sha256: 86bcf885bd9b80466fe0e05453c58b877df61afa8ba947a58c356d7f0fab829b
+
+  - name: rapidjson
+    buildsystem: simple
+    build-commands:
+      - mv include/rapidjson /app/include/
+    sources:
+      - type: archive
+        url: https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.tar.gz
+        sha256: bf7ced29704a1e696fbccf2a2b4ea068e7774fa37f6d7dd4039d0787f8bed98e
+
+  - name: unixodbc2
+    buildsystem: autotools
+    no-autogen: true
+    sources:
+      - type: archive
+        url: http://www.unixodbc.org/unixODBC-2.3.9.tar.gz
+        md5: 06f76e034bb41df5233554abe961a16f
+
+  - name: libzip
+    buildsystem: cmake
+    sources:
+      - type: archive
+        url: https://libzip.org/download/libzip-1.8.0.tar.xz
+        sha256: f0763bda24ba947e80430be787c4b068d8b6aa6027a26a19923f0acfa3dac97e
+
+  - name: mysql-workbench
+    buildsystem: cmake
+    config-opts:
+      - -DCMAKE_INSTALL_PREFIX=/app
+      - -DCMAKE_BUILD_TYPE=MINSIZEREL
+      - -DMySQLCppConn_INCLUDE_DIR=/app/include/jdbc
+      - -DJava_JAVA_EXECUTABLE=/app/jdk/bin/java
+      - -DANTLR_JAR_PATH=/app/lib/
+    sources:
+      - type: archive
+        url: https://dev.mysql.com/get/Downloads/MySQLGUITools/mysql-workbench-community-8.0.26-src.tar.gz
+        md5: 2492c3bea9ff3b1fa33ae1efc1c1f6da

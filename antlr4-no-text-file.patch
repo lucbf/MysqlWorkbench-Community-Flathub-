@@ -1,0 +1,31 @@
+diff --git a/runtime/Cpp/CMakeLists.txt b/runtime/Cpp/CMakeLists.txt
+index e549f113f..9a30f9d4d 100644
+--- a/runtime/Cpp/CMakeLists.txt
++++ b/runtime/Cpp/CMakeLists.txt
+@@ -204,16 +204,16 @@ if (ANTLR4_INSTALL)
+ 
+ endif(ANTLR4_INSTALL)
+ 
+-if(EXISTS LICENSE.txt)
+-install(FILES LICENSE.txt
+-        DESTINATION "share/doc/libantlr4")
+-elseif(EXISTS ../../LICENSE.txt) 
+-install(FILES ../../LICENSE.txt
+-    DESTINATION "share/doc/libantlr4")
+-endif()
+-
+-install(FILES README.md VERSION 
+-    DESTINATION "share/doc/libantlr4")
++#if(EXISTS LICENSE.txt)
++#install(FILES LICENSE.txt
++#        DESTINATION "share/doc/libantlr4")
++#elseif(EXISTS ../../LICENSE.txt) 
++#install(FILES ../../LICENSE.txt
++#    DESTINATION "share/doc/libantlr4")
++#endif()
++#
++#install(FILES README.md VERSION 
++#    DESTINATION "share/doc/libantlr4")
+ 
+ set(CPACK_PACKAGE_CONTACT "antlr-discussion@googlegroups.com")
+ set(CPACK_PACKAGE_VERSION ${ANTLR_VERSION})
