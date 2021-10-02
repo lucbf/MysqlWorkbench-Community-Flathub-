@@ -1,3 +1,9 @@
+Building Mysql Workbench Community from sources. I'm sorry I couldn't get past which should be the last roadblock to fully compile the program. The linker throws the error:
+
+/usr/bin/ld: /run/build/mysql-workbench/library/parsers/libparsers.so.8.0.26: undefined reference to `antlr4::ANTLRInputStream::ANTLRInputStream(std::basic_string_view<char, std::char_traits >)'
+
+At Workbench's 90% build process. I'm posting this in case there's someone who wishes to pick up the job.
+
 # Flathub
 
 Flathub is the central place for building and hosting Flatpak builds.
